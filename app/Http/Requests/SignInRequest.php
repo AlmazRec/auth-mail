@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SignUpRequest extends FormRequest
+class SignInRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,18 +22,17 @@ class SignUpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required'
+            'email' => 'required|email',
+            'password' => 'required',
         ];
     }
+
 
     public function messages(): array
     {
         return [
-            'name.required' => 'Поле name не заполнено.',
-            'email.required' => 'Поле email не заполнено.',
-            'password.required' => 'Поле password не заполнено.',
+            'email.required' => 'Поле email не заполнено',
+            'password.required' => 'Поле password не заполнено',
         ];
     }
 }

@@ -11,14 +11,15 @@ class EmailConfirmationService implements EmailConfirmationInterface
 {
     public function confirmEmail(string $confirmationToken): JsonResponse
     {
-        $userWithThisToken = EmailConfirmation::where('confirmation_token', $confirmationToken)->first();
+        $userWithToken = EmailConfirmation::where('confirmation_token', $confirmationToken)->first();
 
-        if (!$userWithThisToken) {
+        if (!$userWithToken) {
             return response()->json([
                 "message" => 'Пользователь или токен не найден.'
             ]);
         }
-        $user = $userWithThisToken->user;
+
+        $user = $userWithToken->user;
 
         if ($user->email_confirmed == 1) {
             return response()->json([
@@ -31,7 +32,7 @@ class EmailConfirmationService implements EmailConfirmationInterface
 
         $user->save();
 
-        $userWithThisToken->delete();
+        $userWithToken->delete();
 
         return response()->json([
             "message" => 'Почта успешно подтверждена.'

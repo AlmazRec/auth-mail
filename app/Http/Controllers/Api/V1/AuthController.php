@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
@@ -41,13 +42,13 @@ class AuthController extends Controller
     }
 
 
-    public function signIn(Request $request): JsonResponse
+    public function signIn(SignInRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
         $token = $this->authService->signIn($credentials);
 
         return response()->json([
-            'token' => $this->tokenService->respondWithToken($token),
+            'token' => $token,
             'message' => 'Вы успешно вошли.'
         ]);
     }
