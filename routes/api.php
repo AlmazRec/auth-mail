@@ -15,7 +15,6 @@ Route::prefix('v1/books')->middleware([AuthMiddleware::class, EmailConfirmMiddle
     Route::get('/{book}', [BookController::class, 'show'])->name('books.show');
 });
 
-
 // тут роуты для получения книг из бд
 
 

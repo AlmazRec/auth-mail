@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\EmailMessages;
+use App\Enums\ErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Models\EmailConfirmation;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class EmailController extends Controller
 {
@@ -24,7 +28,15 @@ class EmailController extends Controller
 
     public function confirmEmail(string $confirmationToken): JsonResponse
     {
-        return $this->emailConfirmationService->confirmEmail($confirmationToken);
+        try {
+            return $this->emailConfirmationService->confirmEmail($confirmationToken);
+        } catch (Exception $e) {
+            Log::error($e);
+
+            return response()->json([
+                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
+            ], 500);
+        }
     }
 
 
@@ -32,15 +44,32 @@ class EmailController extends Controller
     {
         $confirmationToken = $this->tokenService->generateConfirmationToken();
 
-        $this->emailService->sendConfirmEmail(auth('api')->user()->email, $confirmationToken);
+        try {
+            $this->emailService->sendConfirmEmail(auth('api')->user()->email, $confirmationToken);
+        } catch (Exception $e) {
+            Log::error($e);
 
-        EmailConfirmation::create([
-            'user_id' => auth('api')->user()->id,
-            'confirmation_token' => $confirmationToken
-        ]);
+            return response()->json([
+                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
+            ], 500);
+        }
+
+        try {
+            EmailConfirmation::create([
+                'user_id' => auth('api')->user()->id,
+                'confirmation_token' => $confirmationToken
+            ]);
+        } catch (Exception $e) {
+            Log::error($e);
+
+            return response()->json([
+                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
+            ]);
+        }
+
 
         return response()->json([
-            'message' => 'Письмо с ссылкой на подтверждение отправлено.'
+            'message' => EmailMessages::SUCCESS_SEND->value
         ]);
     }
 }

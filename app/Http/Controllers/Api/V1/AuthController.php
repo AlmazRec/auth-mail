@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\AuthMessages;
+use App\Enums\ErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
@@ -9,8 +11,9 @@ use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -31,27 +34,46 @@ class AuthController extends Controller
 
     public function signUp(SignUpRequest $request): JsonResponse
     {
-        $user = $this->authService->signUp($request->validated());
+        try {
+            $user = $this->authService->signUp($request->validated());
+            $this->emailService->sendWelcomeEmail($user->email, $user->name);
 
-        $this->emailService->sendWelcomeEmail($user->email, $user->name);
+            return response()->json([
+                'User' => $user,
+                'Message' => AuthMessages::SUCCESS_REGISTER->value
+            ]);
+        } catch (Exception $e) {
+            Log::error($e);
 
-        return response()->json([
-            'User' => $user,
-            'Message' => 'Теперь вы можете авторизоваться на сайте.'
-        ]);
+            return response()->json([
+                'error' => ErrorMessages::INTERNAL_SERVER_ERROR
+            ]);
+        }
+
+
+
     }
 
 
     public function signIn(SignInRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
-        $token = $this->authService->signIn($credentials);
 
-        return response()->json([
-            'token' => $token,
-            'message' => 'Вы успешно вошли.'
-        ]);
+        try {
+            $token = $this->authService->signIn($credentials);
+            return response()->json([
+                'token' => $token,
+                'message' => AuthMessages::SUCCESS_JOIN->value
+            ]);
+        } catch (Exception $e) {
+            Log::error($e); // Логирование ошибки для отладки
+
+            return response()->json([
+                'error' => 'Неверный логин или пароль.' // Общее сообщение об ошибке
+            ], 401);
+        }
     }
+
 
 
     public function logout(): JsonResponse
@@ -59,7 +81,7 @@ class AuthController extends Controller
         $this->authService->logout();
 
         return response()->json([
-            'message' => 'Вы успешно вышли.'
+            'message' => AuthMessages::SUCCESS_EXIT->value
         ]);
     }
 
