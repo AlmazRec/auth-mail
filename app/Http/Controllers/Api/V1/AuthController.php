@@ -7,6 +7,7 @@ use App\Enums\ErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
+use App\Jobs\SendWelcomeEmail;
 use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
@@ -36,7 +37,7 @@ class AuthController extends Controller
     {
         try {
             $user = $this->authService->signUp($request->validated());
-            $this->emailService->sendWelcomeEmail($user->email, $user->name);
+            SendWelcomeEmail::dispatch($user->email, $user->name, $this->emailService);
 
             return response()->json([
                 'User' => $user,
@@ -46,7 +47,7 @@ class AuthController extends Controller
             Log::error($e);
 
             return response()->json([
-                'error' => ErrorMessages::INTERNAL_SERVER_ERROR
+                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
             ]);
         }
     }
@@ -58,6 +59,7 @@ class AuthController extends Controller
 
         try {
             $token = $this->authService->signIn($credentials);
+
             return response()->json([
                 'token' => $token,
                 'message' => AuthMessages::SUCCESS_JOIN->value
@@ -66,7 +68,7 @@ class AuthController extends Controller
             Log::error($e);
 
             return response()->json([
-                'error' => 'Неверный логин или пароль.'
+                'error' => ErrorMessages::INCORRECT_LOGIN_OR_PASSWORD->value
             ], 401);
         }
     }
@@ -85,7 +87,7 @@ class AuthController extends Controller
 
     public function me(): JsonResponse
     {
-        return response()->json(auth('api')->user());
+        return $this->authService->logout();
     }
 
 }

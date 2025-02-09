@@ -48,4 +48,10 @@ class AuthService implements AuthServiceInterface {
     {
         return auth('api')->logout();
     }
+
+
+    public function me(): JsonResponse
+    {
+        return response()->json(auth('api')->user());
+    }
 }
