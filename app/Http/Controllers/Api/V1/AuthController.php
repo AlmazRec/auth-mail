@@ -49,9 +49,6 @@ class AuthController extends Controller
                 'error' => ErrorMessages::INTERNAL_SERVER_ERROR
             ]);
         }
-
-
-
     }
 
 
@@ -66,10 +63,10 @@ class AuthController extends Controller
                 'message' => AuthMessages::SUCCESS_JOIN->value
             ]);
         } catch (Exception $e) {
-            Log::error($e); // Логирование ошибки для отладки
+            Log::error($e);
 
             return response()->json([
-                'error' => 'Неверный логин или пароль.' // Общее сообщение об ошибке
+                'error' => 'Неверный логин или пароль.'
             ], 401);
         }
     }

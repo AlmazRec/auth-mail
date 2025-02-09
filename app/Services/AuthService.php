@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Interfaces\AuthServiceInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthService implements AuthServiceInterface {

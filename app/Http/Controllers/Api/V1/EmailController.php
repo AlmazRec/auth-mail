@@ -28,6 +28,7 @@ class EmailController extends Controller
 
     public function confirmEmail(string $confirmationToken): JsonResponse
     {
+
         try {
             return $this->emailConfirmationService->confirmEmail($confirmationToken);
         } catch (Exception $e) {
@@ -37,6 +38,7 @@ class EmailController extends Controller
                 'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
             ], 500);
         }
+
     }
 
 
@@ -46,6 +48,15 @@ class EmailController extends Controller
 
         try {
             $this->emailService->sendConfirmEmail(auth('api')->user()->email, $confirmationToken);
+
+            EmailConfirmation::create([
+                'user_id' => auth('api')->user()->id,
+                'confirmation_token' => $confirmationToken
+            ]);
+
+            return response()->json([
+                'message' => EmailMessages::SUCCESS_SEND->value
+            ]);
         } catch (Exception $e) {
             Log::error($e);
 
@@ -53,23 +64,5 @@ class EmailController extends Controller
                 'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
             ], 500);
         }
-
-        try {
-            EmailConfirmation::create([
-                'user_id' => auth('api')->user()->id,
-                'confirmation_token' => $confirmationToken
-            ]);
-        } catch (Exception $e) {
-            Log::error($e);
-
-            return response()->json([
-                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
-            ]);
-        }
-
-
-        return response()->json([
-            'message' => EmailMessages::SUCCESS_SEND->value
-        ]);
     }
 }
