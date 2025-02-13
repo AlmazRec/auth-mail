@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Mail;
 class EmailService implements EmailServiceInterface
 {
 
-    public function sendWelcomeEmail(string $email, string $name)
+    public function sendWelcomeEmail(string $email, string $name): JsonResponse|SentMessage|null
     {
         try {
-            Mail::to($email)->send(new WelcomeMail($name));
+            return Mail::to($email)->send(new WelcomeMail($name));
         } catch (Exception $e) {
             Log::error($e);
 

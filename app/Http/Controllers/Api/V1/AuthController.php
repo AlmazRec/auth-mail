@@ -42,13 +42,13 @@ class AuthController extends Controller
             return response()->json([
                 'User' => $user,
                 'Message' => AuthMessages::SUCCESS_REGISTER->value
-            ]);
+            ],201);
         } catch (Exception $e) {
             Log::error($e);
 
             return response()->json([
                 'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
-            ]);
+            ], 500);
         }
     }
 
@@ -68,7 +68,7 @@ class AuthController extends Controller
             Log::error($e);
 
             return response()->json([
-                'error' => ErrorMessages::INCORRECT_LOGIN_OR_PASSWORD->value
+                'error' => AuthMessages::INCORRECT_LOGIN_OR_PASSWORD->value
             ], 401);
         }
     }

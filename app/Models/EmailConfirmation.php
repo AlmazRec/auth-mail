@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmailConfirmation extends Model
 {
-    protected $table = 'email_confirmations';
+    protected $table = 'confirmation_tokens';
+
     protected $fillable = [
         'user_id',
         'confirmation_token'

@@ -6,6 +6,8 @@ use App\Enums\EmailMessages;
 use App\Enums\ErrorMessages;
 use App\Http\Controllers\Controller;
 use App\Models\EmailConfirmation;
+use App\Repositories\EmailRepository;
+use App\Repositories\Interfaces\EmailRepositoryInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
@@ -18,10 +20,13 @@ class EmailController extends Controller
     protected EmailConfirmationInterface $emailConfirmationService;
     protected EmailServiceInterface $emailService;
     protected TokenServiceInterface $tokenService;
-    public function __construct(EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationInterface $emailConfirmationService)
+
+    protected EmailRepository $emailRepository;
+    public function __construct(EmailRepositoryInterface $emailRepository, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationInterface $emailConfirmationService)
     {
         $this->emailService = $emailService;
         $this->tokenService = $tokenService;
+        $this->emailRepository = $emailRepository;
         $this->emailConfirmationService = $emailConfirmationService;
     }
 
@@ -49,10 +54,7 @@ class EmailController extends Controller
         try {
             $this->emailService->sendConfirmEmail(auth('api')->user()->email, $confirmationToken);
 
-            EmailConfirmation::create([
-                'user_id' => auth('api')->user()->id,
-                'confirmation_token' => $confirmationToken
-            ]);
+            $this->emailRepository->storeConfirmationToken($confirmationToken);
 
             return response()->json([
                 'message' => EmailMessages::SUCCESS_SEND->value
@@ -61,7 +63,7 @@ class EmailController extends Controller
             Log::error($e);
 
             return response()->json([
-                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
+                'error' => $e
             ], 500);
         }
     }

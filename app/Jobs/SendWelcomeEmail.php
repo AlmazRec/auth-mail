@@ -19,11 +19,12 @@ class SendWelcomeEmail implements ShouldQueue
 
     private string $email;
 
-    public function __construct($name, $email, EmailServiceInterface $emailService)
+    public function __construct(string $email, string $name, EmailServiceInterface $emailService)
     {
         $this->name = $name;
         $this->email = $email;
         $this->emailService = $emailService;
+
     }
 
     /**

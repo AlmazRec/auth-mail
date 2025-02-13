@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Enums\ErrorMessages;
+use App\Enums\AuthMessages;
 use App\Models\User;
 use App\Services\Interfaces\AuthServiceInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthService implements AuthServiceInterface {
@@ -15,7 +14,7 @@ class AuthService implements AuthServiceInterface {
     /**
      * @throws Exception
      */
-    public function signUp(array $data): User|JsonResponse
+    public function signUp(array $data): User
     {
         try {
             return User::create($data);
@@ -29,11 +28,12 @@ class AuthService implements AuthServiceInterface {
     /**
      * @throws Exception
      */
+
     public function signIn(array $credentials): string
     {
         try {
             if (!$token = auth('api')->attempt($credentials)) {
-                throw new Exception(ErrorMessages::INCORRECT_LOGIN_OR_PASSWORD->value);
+                throw new Exception(AuthMessages::INCORRECT_LOGIN_OR_PASSWORD->value);
             }
             return $token;
         } catch (Exception $e) {
