@@ -37,7 +37,7 @@ class AuthController extends Controller
     {
         try {
             $user = $this->authService->signUp($request->validated());
-            SendWelcomeEmail::dispatch($user->email, $user->name, $this->emailService);
+            SendWelcomeEmail::dispatch($user->email, $user->name, $this->emailService); // Создание очереди для отправки приветственного письма
 
             return response()->json([
                 'User' => $user,
@@ -58,7 +58,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            $token = $this->authService->signIn($credentials);
+            $token = $this->authService->signIn($credentials); // Проверяем введенные данные
 
             return response()->json([
                 'token' => $token,
@@ -83,11 +83,4 @@ class AuthController extends Controller
             'message' => AuthMessages::SUCCESS_EXIT->value
         ]);
     }
-
-
-    public function me(): JsonResponse
-    {
-        return $this->authService->logout();
-    }
-
 }

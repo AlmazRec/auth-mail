@@ -13,7 +13,6 @@ Route::prefix('v1')->group(function () {
 
 Route::prefix('v1')->middleware(AuthMiddleware::class)->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/me', [AuthController::class, 'me'])->name('me');
 });
 
 

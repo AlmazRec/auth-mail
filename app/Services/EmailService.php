@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailService implements EmailServiceInterface
 {
-
-    public function sendWelcomeEmail(string $email, string $name): JsonResponse|SentMessage|null
+    public function sendWelcomeEmail(string $email, string $name): JsonResponse|SentMessage
     {
         try {
             return Mail::to($email)->send(new WelcomeMail($name));
@@ -28,7 +27,7 @@ class EmailService implements EmailServiceInterface
         }
     }
 
-    public function sendConfirmEmail(string $email, string $confirmationToken): JsonResponse|SentMessage|null
+    public function sendConfirmEmail(string $email, string $confirmationToken): JsonResponse|SentMessage
     {
         try {
             return Mail::to($email)->send(new ConfirmMail($confirmationToken));

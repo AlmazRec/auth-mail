@@ -4,12 +4,18 @@ namespace App\Services;
 
 use App\Enums\AuthMessages;
 use App\Models\User;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\AuthServiceInterface;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
-class AuthService implements AuthServiceInterface {
+class AuthService implements AuthServiceInterface
+{
+    protected UserRepositoryInterface $userRepository;
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
 
     /**
      * @throws Exception
@@ -17,7 +23,7 @@ class AuthService implements AuthServiceInterface {
     public function signUp(array $data): User
     {
         try {
-            return User::create($data);
+            return $this->userRepository->store($data);
         } catch (Exception $e) {
             Log::error($e);
 
@@ -44,14 +50,8 @@ class AuthService implements AuthServiceInterface {
     }
 
 
-    public function logout(): null
+    public function logout(): bool
     {
         return auth('api')->logout();
-    }
-
-
-    public function me(): JsonResponse
-    {
-        return response()->json(auth('api')->user());
     }
 }
