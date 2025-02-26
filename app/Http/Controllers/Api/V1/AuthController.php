@@ -15,6 +15,23 @@ use App\Services\Interfaces\TokenServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @OA\Info(
+ *     title="Laravel Swagger Demo",
+ *     description="Demonstration of Swagger with Laravel",
+ *     version="1.0",
+ *     @OA\Contact(
+ *         email="hello@example.com"
+ *     )
+ * )
+ *
+ * @OA\Server(url="http://localhost:8000/api/v1")
+ *
+ * @OA\Tag(
+ *     name="Auth",
+ *     description="API Endpoints of Auth"
+ * )
+ */
 class AuthController extends Controller
 {
     protected AuthServiceInterface $authService;
@@ -23,6 +40,47 @@ class AuthController extends Controller
 
     protected EmailConfirmationInterface $emailConfirmationService;
 
+    /**
+     * @OA\Constructor(
+     *     @OA\Parameter(
+     *         name="service_auth",
+     *         parameter="service",
+     *         description="Service of auth",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_email",
+     *         description="Service of email",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_token",
+     *         description="Service of token",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="service_email_confirmation",
+     *         description="Service of confirmation",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     )
+     * )
+     */
     public function __construct(AuthServiceInterface $authService, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationInterface $emailConfirmationService)
     {
         $this->authService = $authService;
@@ -32,6 +90,50 @@ class AuthController extends Controller
     }
 
 
+    /**
+     * @OA\Post(
+     *     path="/auth/sign-up",
+     *     summary="Sign up",
+     *     description="Sign up",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         description="User info",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string",
+     *                 example="John Doe"
+     *             ),
+     *             @OA\Property(
+     *                 property="email",
+     *                 type="string",
+     *                 format="email",
+     *                 example="user1@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="password",
+     *                 type="string",
+     *                 format="password",
+     *                 example="Passw0rd"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation exception"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     )
+     * )
+     */
     public function signUp(SignUpRequest $request): JsonResponse
     {
         try {
@@ -50,6 +152,45 @@ class AuthController extends Controller
     }
 
 
+    /**
+     * @OA\Post(
+     *     path="/auth/sign-in",
+     *     summary="Sign in",
+     *     description="Sign in",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         description="User info",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="email",
+     *                 type="string",
+     *                 format="email",
+     *                 example="user1@example.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="password",
+     *                 type="string",
+     *                 format="password",
+     *                 example="Passw0rd"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation exception"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     )
+     * )
+     */
     public function signIn(SignInRequest $request): JsonResponse
     {
         try {
@@ -69,6 +210,26 @@ class AuthController extends Controller
 
 
 
+    /**
+     * @OA\Post(
+     *     path="/auth/logout",
+     *     summary="Logout",
+     *     description="Logout",
+     *     tags={"Auth"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation exception"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     )
+     * )
+     */
     public function logout(): JsonResponse
     {
         try {
@@ -85,3 +246,5 @@ class AuthController extends Controller
 
     }
 }
+
+

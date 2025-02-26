@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->register(\L5Swagger\L5SwaggerServiceProvider::class);
+
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(EmailServiceInterface::class, EmailService::class);
         $this->app->bind(TokenServiceInterface::class, TokenService::class);
