@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Enums\AuthMessages;
+use App\Exceptions\IncorrectCredentialsException;
+use App\Exceptions\InternalServerErrorException;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\AuthServiceInterface;
@@ -24,10 +26,9 @@ class AuthService implements AuthServiceInterface
     {
         try {
             return $this->userRepository->store($data);
-        } catch (Exception $e) {
+        } catch (Exception $e) { // Обработка других исключений
             Log::error($e);
-
-            throw new Exception($e);
+            throw new InternalServerErrorException("Общая ошибка сервиса.", 0, $e);
         }
     }
 
@@ -39,19 +40,25 @@ class AuthService implements AuthServiceInterface
     {
         try {
             if (!$token = auth('api')->attempt($credentials)) {
-                throw new Exception(AuthMessages::INCORRECT_LOGIN_OR_PASSWORD->value);
+                throw new IncorrectCredentialsException(AuthMessages::INCORRECT_CREDENTIALS->value);
             }
             return $token;
-        } catch (Exception $e) {
+        } catch (InternalServerErrorException $e) {
             Log::error($e);
 
-            throw new Exception($e);
+            throw new InternalServerErrorException($e);
         }
     }
 
 
     public function logout(): bool
     {
-        return auth('api')->logout();
+        try {
+            return auth('api')->logout();
+        } catch (InternalServerErrorException $e) {
+            Log::error($e);
+
+            throw new InternalServerErrorException($e);
+        }
     }
 }

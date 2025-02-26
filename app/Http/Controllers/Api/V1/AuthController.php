@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\AuthMessages;
-use App\Enums\ErrorMessages;
+use App\Exceptions\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
@@ -12,7 +12,6 @@ use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
@@ -43,33 +42,28 @@ class AuthController extends Controller
                 'User' => $user,
                 'Message' => AuthMessages::SUCCESS_REGISTER->value
             ],201);
-        } catch (Exception $e) {
+        } catch (InternalServerErrorException $e) {
             Log::error($e);
 
-            return response()->json([
-                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
-            ], 500);
+            return $e->render();
         }
     }
 
 
     public function signIn(SignInRequest $request): JsonResponse
     {
-        $credentials = $request->only('email', 'password');
-
         try {
+            $credentials = $request->only('email', 'password');
             $token = $this->authService->signIn($credentials); // Проверяем введенные данные
 
             return response()->json([
                 'token' => $token,
                 'message' => AuthMessages::SUCCESS_JOIN->value
             ]);
-        } catch (Exception $e) {
+        } catch (InternalServerErrorException $e) {
             Log::error($e);
 
-            return response()->json([
-                'error' => AuthMessages::INCORRECT_LOGIN_OR_PASSWORD->value
-            ], 401);
+            return $e->render();
         }
     }
 
@@ -77,10 +71,17 @@ class AuthController extends Controller
 
     public function logout(): JsonResponse
     {
-        $this->authService->logout();
+        try {
+            $this->authService->logout();
 
-        return response()->json([
-            'message' => AuthMessages::SUCCESS_EXIT->value
-        ]);
+            return response()->json([
+                'message' => AuthMessages::SUCCESS_EXIT->value
+            ]);
+        } catch (InternalServerErrorException $e) {
+            Log::error($e);
+
+            return $e->render();
+        }
+
     }
 }

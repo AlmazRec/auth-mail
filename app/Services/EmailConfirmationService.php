@@ -3,29 +3,34 @@
 namespace App\Services;
 
 use App\Enums\EmailMessages;
-use App\Enums\ErrorMessages;
-use App\Models\EmailConfirmation;
+use App\Exceptions\EmailAlreadyConfirmedException;
+use App\Exceptions\InternalServerErrorException;
+use App\Exceptions\UserNotFoundException;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class EmailConfirmationService implements EmailConfirmationInterface
 {
+    protected UserRepositoryInterface $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
     public function confirmEmail(string $confirmationToken): JsonResponse
     {
 
         try {
-            $userWithToken = EmailConfirmation::where('confirmation_token', $confirmationToken)->firstOrFail();
+            $userWithToken = $this->userRepository->findByConfirmationToken($confirmationToken);
 
             $user = $userWithToken->user;
 
             if ($user->email_confirmed) {
-                return response()->json([
-                    'message' => EmailMessages::EMAIL_ALREADY_CONFIRM->value
-                ]);
+                throw new EmailAlreadyConfirmedException();
             }
 
             $user->email_confirmed = true;
@@ -42,17 +47,12 @@ class EmailConfirmationService implements EmailConfirmationInterface
         } catch (ModelNotFoundException $e) {
             Log::error($e);
 
-            return response()->json([
-                'message' => ErrorMessages::INVALID_TOKEN->value
-            ], 404);
+            throw new UserNotFoundException($e);
 
-        } catch (Exception $e) {
+        } catch (InternalServerErrorException $e) {
             Log::error($e);
 
-            return response()->json([
-                'message' => ErrorMessages::INTERNAL_SERVER_ERROR->value
-            ], 500);
-
+            throw new InternalServerErrorException($e);
         }
     }
 }

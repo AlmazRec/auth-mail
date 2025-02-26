@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\EmailMessages;
-use App\Enums\ErrorMessages;
+use App\Exceptions\ConfirmationTokenStoreException;
+use App\Exceptions\EmailAlreadyConfirmedException;
+use App\Exceptions\InternalServerErrorException;
 use App\Http\Controllers\Controller;
 use App\Jobs\sendConfirmEmailJob;
 use App\Repositories\EmailRepository;
@@ -11,9 +13,8 @@ use App\Repositories\Interfaces\EmailRepositoryInterface;
 use App\Services\Interfaces\EmailConfirmationInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
-use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class EmailController extends Controller
 {
@@ -40,12 +41,12 @@ class EmailController extends Controller
 
         try {
             return $this->emailConfirmationService->confirmEmail($confirmationToken); // Подтверждение почты
-        } catch (Exception $e) {
-            Log::error($e);
-
-            return response()->json([
-                'error' => ErrorMessages::INTERNAL_SERVER_ERROR->value
-            ], 500);
+        } catch (InternalServerErrorException $e) {
+            return $e->render();
+        } catch (ModelNotFoundException $e) {
+            return $e->render();
+        } catch (EmailAlreadyConfirmedException $e) {
+            return $e->render();
         }
 
     }
@@ -63,12 +64,10 @@ class EmailController extends Controller
             return response()->json([
                 'message' => EmailMessages::SUCCESS_SEND->value
             ]);
-        } catch (Exception $e) {
-            Log::error($e);
-
-            return response()->json([
-                'error' => $e
-            ], 500);
+        } catch (InternalServerErrorException $e) {
+            return $e->render();
+        } catch (ConfirmationTokenStoreException $e) {
+            return $e->render();
         }
     }
 }
