@@ -10,4 +10,6 @@ interface UserRepositoryInterface
     public function store(array $data): User;
 
     public function findByConfirmationToken(string $confirmationToken): EmailConfirmation;
+
+    public function findByEmail(string $email): User;
 }

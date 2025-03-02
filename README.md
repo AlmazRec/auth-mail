@@ -1,5 +1,5 @@
 В будущем:
- - Смена пароля
+ - отрефакторю смену пароля
 
 Для установки:
  - git clone https://github.com/AlmazRec/auth-mail

@@ -2,7 +2,7 @@
 
 namespace App\Services\Interfaces;
 
-interface EmailConfirmationInterface
+interface EmailConfirmationServiceInterface
 {
     public function confirmEmail(string $confirmationToken);
 }

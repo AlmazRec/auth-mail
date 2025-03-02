@@ -27,7 +27,6 @@ class AuthService implements AuthServiceInterface
         try {
             return $this->userRepository->store($data);
         } catch (Exception $e) { // Обработка других исключений
-            Log::error($e);
             throw new InternalServerErrorException("Общая ошибка сервиса.", 0, $e);
         }
     }
@@ -44,8 +43,6 @@ class AuthService implements AuthServiceInterface
             }
             return $token;
         } catch (InternalServerErrorException $e) {
-            Log::error($e);
-
             throw new InternalServerErrorException($e);
         }
     }
@@ -56,8 +53,6 @@ class AuthService implements AuthServiceInterface
         try {
             return auth('api')->logout();
         } catch (InternalServerErrorException $e) {
-            Log::error($e);
-
             throw new InternalServerErrorException($e);
         }
     }

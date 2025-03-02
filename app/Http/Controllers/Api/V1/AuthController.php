@@ -9,7 +9,7 @@ use App\Http\Requests\SignInRequest;
 use App\Http\Requests\SignUpRequest;
 use App\Jobs\SendWelcomeEmail;
 use App\Services\Interfaces\AuthServiceInterface;
-use App\Services\Interfaces\EmailConfirmationInterface;
+use App\Services\Interfaces\EmailConfirmationServiceInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
 use Illuminate\Http\JsonResponse;
@@ -38,7 +38,7 @@ class AuthController extends Controller
     protected EmailServiceInterface $emailService;
     protected TokenServiceInterface $tokenService;
 
-    protected EmailConfirmationInterface $emailConfirmationService;
+    protected EmailConfirmationServiceInterface $emailConfirmationService;
 
     /**
      * @OA\Constructor(
@@ -81,7 +81,7 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function __construct(AuthServiceInterface $authService, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationInterface $emailConfirmationService)
+    public function __construct(AuthServiceInterface $authService, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationServiceInterface $emailConfirmationService)
     {
         $this->authService = $authService;
         $this->emailService = $emailService;
@@ -245,6 +245,7 @@ class AuthController extends Controller
         }
 
     }
+
 }
 
 

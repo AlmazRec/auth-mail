@@ -3,8 +3,10 @@
 namespace App\Repositories;
 
 use App\Exceptions\ConfirmationTokenStoreException;
+use App\Exceptions\UserNotFoundException;
 use App\Models\EmailConfirmation;
 use App\Repositories\Interfaces\EmailRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 
@@ -23,4 +25,14 @@ class EmailRepository implements EmailRepositoryInterface
             throw new ConfirmationTokenStoreException($e);
         }
     }
+
+    public function findByConfirmationToken(string $confirmationToken): EmailConfirmation
+    {
+        try {
+            return EmailConfirmation::where('confirmation_token', $confirmationToken)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            throw new UserNotFoundException($e);
+        }
+    }
+
 }

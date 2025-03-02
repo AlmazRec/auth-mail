@@ -13,4 +13,9 @@ class TokenService implements TokenServiceInterface
     {
         return Str::random(60);
     }
+
+    public function generateResetToken(): string
+    {
+        return Str::random(60);
+    }
 }

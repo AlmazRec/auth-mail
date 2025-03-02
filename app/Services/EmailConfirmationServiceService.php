@@ -7,13 +7,13 @@ use App\Exceptions\EmailAlreadyConfirmedException;
 use App\Exceptions\InternalServerErrorException;
 use App\Exceptions\UserNotFoundException;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Services\Interfaces\EmailConfirmationInterface;
+use App\Services\Interfaces\EmailConfirmationServiceInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
-class EmailConfirmationService implements EmailConfirmationInterface
+class EmailConfirmationServiceService implements EmailConfirmationServiceInterface
 {
     protected UserRepositoryInterface $userRepository;
 

@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\sendConfirmEmailJob;
 use App\Repositories\EmailRepository;
 use App\Repositories\Interfaces\EmailRepositoryInterface;
-use App\Services\Interfaces\EmailConfirmationInterface;
+use App\Services\Interfaces\EmailConfirmationServiceInterface;
 use App\Services\Interfaces\EmailServiceInterface;
 use App\Services\Interfaces\TokenServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -37,13 +37,13 @@ class EmailController extends Controller
     /**
      * DI-container
      */
-    protected EmailConfirmationInterface $emailConfirmationService;
+    protected EmailConfirmationServiceInterface $emailConfirmationService;
     protected EmailServiceInterface $emailService;
     protected TokenServiceInterface $tokenService;
 
     protected EmailRepository $emailRepository;
 
-    public function __construct(EmailRepositoryInterface $emailRepository, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationInterface $emailConfirmationService)
+    public function __construct(EmailRepositoryInterface $emailRepository, EmailServiceInterface $emailService, TokenServiceInterface $tokenService, EmailConfirmationServiceInterface $emailConfirmationService)
     {
         $this->emailService = $emailService;
         $this->tokenService = $tokenService;

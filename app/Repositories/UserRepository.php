@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Log;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -18,8 +17,6 @@ class UserRepository implements UserRepositoryInterface
         try {
             return User::create($data);
         } catch (QueryException $e) {
-            Log::error($e);
-
             throw new InternalServerErrorException($e);
         }
     }
@@ -29,8 +26,15 @@ class UserRepository implements UserRepositoryInterface
         try {
             return EmailConfirmation::where('confirmation_token', $confirmationToken)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            Log::error($e);
+            throw new UserNotFoundException($e);
+        }
+    }
 
+    public function findByEmail(string $email): User
+    {
+        try {
+            return User::where('email', $email)->first();
+        } catch (ModelNotFoundException $e) {
             throw new UserNotFoundException($e);
         }
     }
